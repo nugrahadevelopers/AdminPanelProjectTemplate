@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,32 +34,10 @@ class UserController extends Controller
         return view('admin.users.index');
     }
 
-    public function store(Request $request)
+    public function store(UserRequest $request, UserService $userService)
     {
-        $request->validate([
-            'name'     => ['required', 'string', 'min:2', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id'  => ['required']
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $request->password,
-            ]);
-
-            $user->assignRole($request->role_id);
-        } catch (QueryException $err) {
-            DB::rollBack();
-            return redirect()->back()->withInput($request->all())->with('error', 'Periksa kembali inputan anda.');
-        }
-
-        DB::commit();
-
-        return redirect()->route('admin.users.index')->with('success', 'Pengguna baru berhasil di tambahkan.');
+        $user = $userService->createUser($request->validated());
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna dengan nama ' . $user->name . ' berhasil di tambahkan.');
     }
 
     public function update(Request $request, User $user)
