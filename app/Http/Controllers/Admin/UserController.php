@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
-use App\Services\UserService;
-use Illuminate\Database\QueryException;
+use App\Services\ModelCRUDService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
+    private $crud;
+
+    public function __construct(ModelCRUDService $crud)
+    {
+        $this->crud = $crud;
+    }
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -34,61 +38,18 @@ class UserController extends Controller
         return view('admin.users.index');
     }
 
-    public function store(UserRequest $request, UserService $userService)
+    public function store(UserRequest $request)
     {
-        $user = $userService->createUser($request->validated());
-        return redirect()->route('admin.users.index')->with('success', 'Pengguna dengan nama ' . $user->name . ' berhasil di tambahkan.');
+        return $this->crud->create($request->validated(), new User());
     }
 
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        $request->validate([
-            'name'     => ['required', 'string', 'min:2', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,id,' . $user->id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role_id'  => ['required']
-        ]);
-
-        DB::beginTransaction();
-        try {
-            if ($request->password != null) {
-                $user->update([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'password' => $request->password,
-                ]);
-            } else {
-                $user->update([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                ]);
-            }
-
-            if ($request->role_id) {
-                $user->assignRole($request->role_id);
-            }
-        } catch (QueryException $err) {
-            DB::rollBack();
-            return redirect()->back()->withInput($request->all())->with('error', 'Periksa kembali inputan anda.');
-        }
-
-        DB::commit();
-
-        return redirect()->route('admin.users.index')->with('success', 'Data pengguna berhasil di ubah.');
+        return $this->crud->update($request->validated(), $user);
     }
 
     public function destroy(User $user)
     {
-        DB::beginTransaction();
-        try {
-            $user->delete();
-        } catch (QueryException $err) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Pengguna gagal di hapus.');
-        }
-
-        DB::commit();
-
-        return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil di hapus.');
+        return $this->crud->delete($user);
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
-class UserRequest extends FormRequest
+class RoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,7 @@ class UserRequest extends FormRequest
     {
         return match ($this->method()) {
             'POST' => $this->store(),
-            'PUT' => $this->update(),
+            'PUT'  => $this->update(),
         };
     }
 
@@ -36,19 +36,13 @@ class UserRequest extends FormRequest
     {
         return [
             'name'     => ['required', 'string', 'min:2', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id'  => ['required']
         ];
     }
 
     public function update()
     {
         return [
-            'name'     => ['required', 'string', 'min:2', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,id,' . $this->user()->id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role_id'  => ['nullable']
+            'name'     => ['required', 'string', 'min:2', 'max:255', 'unique:roles,id,' . $this->id],
         ];
     }
 

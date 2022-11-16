@@ -19,3 +19,15 @@ Breadcrumbs::for('users', function (BreadcrumbsTrail $trail) {
     $trail->parent('admin');
     $trail->push('Pengguna');
 });
+
+// Admin > Roles
+Breadcrumbs::for('roles', function (BreadcrumbsTrail $trail) {
+    $trail->parent('admin');
+    $trail->push('Role');
+});
+
+// Admin > Access Rights
+Breadcrumbs::for('access-rights', function (BreadcrumbsTrail $trail) {
+    $trail->parent('admin');
+    $trail->push(trans('layout.navigation.permission'));
+});

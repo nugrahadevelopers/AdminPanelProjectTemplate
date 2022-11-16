@@ -80,7 +80,10 @@
                     <x-navbar-menu-item-dropdown-menu>
                         <a class="dropdown-item"
                             href="{{ route('admin.users.index') }}">{{ trans('layout.navigation.users') }}</a>
-                        <a class="dropdown-item" href="/">{{ trans('layout.navigation.roles') }}</a>
+                        <a class="dropdown-item"
+                            href="{{ route('admin.roles.index') }}">{{ trans('layout.navigation.roles') }}</a>
+                        <a class="dropdown-item"
+                            href="{{ route('admin.access-rights.index') }}">{{ trans('layout.navigation.permission') }}</a>
                     </x-navbar-menu-item-dropdown-menu>
                 </x-navbar-menu-item-dropdown>
             </x-navbar-menu-wrapper>

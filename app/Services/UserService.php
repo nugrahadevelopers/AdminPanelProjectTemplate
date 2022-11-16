@@ -13,9 +13,7 @@ class UserService
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
-
         $user->assignRole($data['role_id']);
-
         return $user;
     }
 }
